@@ -1,12 +1,7 @@
-from cProfile import label
-import os
 import csv
 import tkinter
-from tkinter import filedialog, ttk, messagebox
-from types import TracebackType
 from wsgiref.validate import PartialIteratorWrapper
-
-from click import edit
+import re
 
 # --------------------------------------------------------- CSV --------------------------------------------------------
 
@@ -52,6 +47,7 @@ def get_value():
     temp_min = ""
     equipo = ""
     tempo = ""
+    jornada = ""
     chatval = True
     resultadoval = False
     comillaval = False
@@ -61,7 +57,8 @@ def get_value():
     partidosval = False
     topval = False
     tempoval = False 
-
+    esp_jornada = False
+    esp_temp = False
     for letra in text_user:
         if letra == "\n":
             fila += 1
@@ -200,6 +197,71 @@ def get_value():
                         temp_min = ""
                 elif tempoval == True:                       
                     tempo += letra
+        elif jornadaval == True:
+            if letra == " " and esp_jornada == False and esp_temp == False:
+                esp_jornada = True
+            
+            if esp_jornada == True:
+                if letra != " ":
+                    jornada += letra
+                else:
+                    if jornada.isnumeric() == True:
+                        tokentemp = "Token jornada: ' "+jornada+" ' encontrado en col. "+str(columna)
+                        tokn.append(tokentemp) 
+                        lexema.append(jornada) 
+                        esp_jornada = False
+                        esp_temp = True
+                        
+                    else:
+                        errortemp = "Error lexico se esperarian numeros,  col. "+str(columna)
+                        error.append(errortemp)
+
+            elif esp_temp == True:
+                if letra == "<":
+                    tokentemp = "Token contenedor temporada: ' "+letra+" ' encontrado en col. "+str(columna)
+                    tokn.append(tokentemp) 
+                    tempoval = True
+
+                elif letra == ">":
+                    tokentemp = "Token temporada:' "+tempo+" ' encontrado en col. "+str(columna)
+                    tokn.append(tokentemp) 
+                    lexema.append(tempo)
+                    tempo = ""
+
+                    tokentemp = "Token contenedor temporada: ' "+letra+" ' encontrado en col. "+str(columna)
+                    tokn.append(tokentemp) 
+                    tempoval = False
+
+                elif tempoval == False:
+                    temp += letra
+                    temp_min += letra.upper()
+                    if temp_min == "TEMPORADA":
+                        tokentemp = "Token palabra reservada: ' "+temp+" ' encontrado en col. "+str(columna)
+                        tokn.append(tokentemp) 
+                        lexema.append(temp)
+                        temp = ""
+                        temp_min = ""
+
+                elif tempoval == True:                       
+                    tempo += letra
+
+                    
+
+            
+            
+
+
+
+        elif golesval == True:
+            ""
+        elif tablaval == True:
+            ""
+        elif partidosval == True:
+            ""
+        elif topval == True:
+            ""
+
+    resp_txt(lexema)
     sintactico(lexema)
 
 
@@ -207,7 +269,6 @@ def get_value():
 def sintactico(lexema):
     equipo1 = []
     equipo2 = []
-    temporada = []
     resultado = []
     respuesta = ""
     partidos
