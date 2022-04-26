@@ -42,13 +42,12 @@ def get_value():
     text_user = txtA.get()
 
     text.configure(state='normal')
-    text.insert(tkinter.END, "Usuario: "+text_user+"\n\n")
+    text.insert(tkinter.END, "Usuario:\n"+text_user+"\n\n")
     text.configure(state='disabled')
 
-    global lexema
+    global lexema, columna
     lexema = []
     columna = 1
-    fila = 1
     temp = ""
     temp_min = ""
     equipo = ""
@@ -210,21 +209,44 @@ def sintactico(lexema):
     equipo2 = []
     temporada = []
     resultado = []
-
+    respuesta = ""
     partidos
-    for lista in range(len(lexema)):        
+    for lista in range(len(lexema)):     
         if lexema[0] == "RESULTADO":
-            equipo1 = list(filter(lambda item: item['Equipo1'] == lexema[1], partidos))            
+            equipo1 = list(filter(lambda item: item['Equipo1'] == lexema[1], partidos))             
+            if bool(equipo1) == False:
+                respuesta = "El equipo local especificado no exciste.\n\n"
+                resp_txt(respuesta)
+                break
             if lexema[2] == "VS":
                 equipo2 = list(filter(lambda item: item['Equipo2'] == lexema[3], equipo1))
+                if bool(equipo2) == False:
+                    respuesta = "El equipo visitante especificado no exciste.\n\n"
+                    resp_txt(respuesta)
+                    break
                 if lexema[4] == "TEMPORADA":
                     resultado = list(filter(lambda item: item['Temporada'] == lexema[5], equipo2))
-                    respuesta = "El Bicho bot: El resultado de este partido fue: "+lexema[1]+" "+resultado[0]["Goles1"]+" - "+lexema[3]+" "+resultado[0]["Goles2"]
+                    if bool(resultado) == False:
+                        respuesta = "La temporada especificada no exciste.\n\n"
+                        resp_txt(respuesta)
+                        break
+                    respuesta = "El Bicho bot:\n El resultado de este partido fue: "+lexema[1]+" "+resultado[0]["Goles1"]+" - "+lexema[3]+" "+resultado[0]["Goles2"]+"\n\n"
 
-                    text.configure(state='normal')
-                    text.insert(tkinter.END, respuesta)
-                    text.configure(state='disabled')
+                    resp_txt(respuesta)
                     break
+                else:
+                    errortemp = "Error sintactico: "+ lexema[4]  +" no es reconocido por este lenguaje col. "+str(columna)
+                    error.append(errortemp)
+                    respuesta = "Error sintactico: "+ lexema[4]  +" no es reconocido por este lenguaje col. "+str(columna)+"\n\n"
+                    resp_txt(respuesta)
+                    break
+            else:
+                errortemp = "Error sintactico: "+ lexema[2]  +" no es reconocido por este lenguaje col. "+str(columna)
+                error.append(errortemp)
+                respuesta = "Error sintactico: "+ lexema[2]  +" no es reconocido por este lenguaje col. "+str(columna)+"\n\n"
+                resp_txt(respuesta)
+                break
+                
         elif lexema[0] == "JORNADA":
             ""
         elif lexema[0] == "GOLES":
@@ -235,9 +257,17 @@ def sintactico(lexema):
             ""
         elif lexema[0] == "TOP":
             ""
-    
+        else:
+            errortemp = "Error sintactico: "+ lexema[0]  +" no es reconocido por este lenguaje col. "+str(columna)
+            error.append(errortemp) 
+            respuesta = "Error sintactico: "+ lexema[0]  +" no es reconocido por este lenguaje col. "+str(columna)+"\n\n"
+            resp_txt(respuesta)
+            break
 
-
+def resp_txt(R):
+    text.configure(state='normal')
+    text.insert(tkinter.END, R)
+    text.configure(state='disabled')
 
 def carga(artemp):    
     text.insert(tkinter.END, artemp)
