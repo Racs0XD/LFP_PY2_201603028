@@ -1,4 +1,5 @@
 import csv
+from tkinter import filedialog, ttk, messagebox
 import tkinter
 from wsgiref.validate import PartialIteratorWrapper
 import re
@@ -34,7 +35,7 @@ with open('LaLigaBot-LFP.csv', encoding='utf-8') as file:
 
 def get_value():
     
-    text_user = txtA.get()
+    text_user = txtA.get()+"."
 
     text.configure(state='normal')
     text.insert(tkinter.END, "Usuario:\n"+text_user+"\n\n")
@@ -48,6 +49,8 @@ def get_value():
     equipo = ""
     tempo = ""
     jornada = ""
+    flg = ""
+    arch_rep = ""
     chatval = True
     resultadoval = False
     comillaval = False
@@ -59,6 +62,8 @@ def get_value():
     tempoval = False 
     esp_jornada = False
     esp_temp = False
+    esp_bandera = False
+    esp_arch = False
     for letra in text_user:
         if letra == "\n":
             fila += 1
@@ -198,9 +203,8 @@ def get_value():
                 elif tempoval == True:                       
                     tempo += letra
         elif jornadaval == True:
-            if letra == " " and esp_jornada == False and esp_temp == False:
-                esp_jornada = True
-            
+            if letra == " " and esp_jornada == False and esp_temp == False and esp_bandera == False and esp_arch == False:
+                esp_jornada = True            
             if esp_jornada == True:
                 if letra != " ":
                     jornada += letra
@@ -210,12 +214,7 @@ def get_value():
                         tokn.append(tokentemp) 
                         lexema.append(jornada) 
                         esp_jornada = False
-                        esp_temp = True
-                        
-                    else:
-                        errortemp = "Error lexico se esperarian numeros,  col. "+str(columna)
-                        error.append(errortemp)
-
+                        esp_temp = True              
             elif esp_temp == True:
                 if letra == "<":
                     tokentemp = "Token contenedor temporada: ' "+letra+" ' encontrado en col. "+str(columna)
@@ -231,6 +230,8 @@ def get_value():
                     tokentemp = "Token contenedor temporada: ' "+letra+" ' encontrado en col. "+str(columna)
                     tokn.append(tokentemp) 
                     tempoval = False
+                    esp_bandera = True
+                    esp_temp = False
 
                 elif tempoval == False:
                     temp += letra
@@ -240,10 +241,38 @@ def get_value():
                         tokn.append(tokentemp) 
                         lexema.append(temp)
                         temp = ""
-                        temp_min = ""
+                        temp_min = ""           
 
                 elif tempoval == True:                       
                     tempo += letra
+
+            elif esp_bandera == True:                       
+                if letra == " ":
+                    ""
+                else:
+                    flg += letra
+                    if flg == "-f":
+                        tokentemp = "Token palabra reservada: ' "+flg+" ' encontrado en col. "+str(columna)
+                        tokn.append(tokentemp) 
+                        lexema.append(flg)  
+                        esp_arch = True  
+                        esp_bandera = False
+                        flg = ""     
+            elif esp_arch == True:
+                if letra== " ":
+                    ""
+                elif letra != ".":
+                    arch_rep += letra                   
+                else:   
+                    tokentemp = "Token archivo: ' "+arch_rep+" ' encontrado en col. "+str(columna)
+                    tokn.append(tokentemp) 
+                    lexema.append(arch_rep)  
+                    print(lexema)                    
+
+
+
+                
+
 
                     
 
@@ -261,12 +290,13 @@ def get_value():
         elif topval == True:
             ""
 
-    resp_txt(lexema)
+    #resp_txt(lexema)
     sintactico(lexema)
 
 
 
 def sintactico(lexema):
+    jornadas = []
     equipo1 = []
     equipo2 = []
     resultado = []
@@ -309,7 +339,37 @@ def sintactico(lexema):
                 break
                 
         elif lexema[0] == "JORNADA":
-            ""
+            jornadas = list(filter(lambda item: item['Jornada'] == lexema[1], partidos))             
+            if bool(jornadas) == False:
+                respuesta = "La jornada especificada no exciste.\n\n"
+                resp_txt(respuesta)
+                break        
+            if lexema[2] == "TEMPORADA":
+                resultado = list(filter(lambda item: item['Temporada'] == lexema[3], jornadas))
+                if bool(resultado) == False:
+                    respuesta = "La temporada especificada no exciste.\n\n"
+                    resp_txt(respuesta)
+                    break
+                if len(lexema) == 6:
+                    print(len(lexema))
+                    if lexema[4] == "-f":
+                        respuesta = "El Bicho bot:\n Generando archivo de resultados jornada "+lexema[1]+" temporada "+lexema[3]+"\n\n"
+                        rep_jornadas(lexema,resultado)
+                        resp_txt(respuesta)
+                        break
+                else:
+                    respuesta = "El Bicho bot:\n Generando archivo de resultados jornada "+lexema[1]+" temporada "+lexema[3]+"\n\n"
+                    rep_jornadas(lexema,resultado)
+                    resp_txt(respuesta)
+                    break                
+                
+            else:
+                errortemp = "Error sintactico: "+ lexema[2]  +" no es reconocido por este lenguaje col. "+str(columna)
+                error.append(errortemp)
+                respuesta = "Error sintactico: "+ lexema[2]  +" no es reconocido por este lenguaje col. "+str(columna)+"\n\n"
+                resp_txt(respuesta)
+                break
+            
         elif lexema[0] == "GOLES":
             ""
         elif lexema[0] == "TABLA":
@@ -324,6 +384,7 @@ def sintactico(lexema):
             respuesta = "Error sintactico: "+ lexema[0]  +" no es reconocido por este lenguaje col. "+str(columna)+"\n\n"
             resp_txt(respuesta)
             break
+    txtA.delete(0,tkinter.END)
 
 def resp_txt(R):
     text.configure(state='normal')
@@ -336,9 +397,7 @@ def carga(artemp):
 def recarga(artemp):
     text.insert(tkinter.END, artemp)
 
-
-def analizar():
-    data = text.get(1.0, "end-1c")           
+  
 
 def log_errores():
     error.clear() 
@@ -353,6 +412,328 @@ def lista():
     text.configure(state='normal')
     text.insert("1.0", lexema)
     text.configure(state='disabled')
+
+
+import webbrowser
+from numpy import empty
+
+def rep_jornadas(valores,csv_L):   
+
+
+    try:
+        if tokn is not empty:
+           
+            if len(valores) == 6:
+                nombre = valores[5]
+            else:
+                nombre = "jornada"
+
+            f = open(nombre+'.html', 'w')  
+
+            html_cabeza = """
+        <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Reporte de Jornadas</title>
+        </head>
+
+        <body>
+
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+            integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+
+
+
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+            <a class="navbar-brand"> &nbsp;&nbsp;&nbsp;Reporte</a>
+        </nav>
+
+        """
+            html_header = '''
+            <center>
+            <h3>
+            Lista de todos los partidos de la jornada {}, temporada {}
+            </h3>
+            </center>
+            <table border="1", style="margin: 0 auto;",class="default">
+            <tr>
+            <th>Tokens</th>
+            </tr>
+            '''.format(valores[1],valores[3])
+
+            html_mid = ''
+            for a in range(len(csv_L)):
+                n = csv_L[a]
+                n = csv_L[a]["Equipo1"]+" "+csv_L[a]["Goles1"]+" - "+csv_L[a]["Equipo2"]+" "+csv_L[a]["Goles2"]
+                
+                html_mid += '''<tr>
+            <td>{}</td>
+            </tr>'''.format(n)
+
+            hmtl_end = """</table><br><br>
+            """
+            html_pie="""
+
+
+            <br><br><br><br><br><br>
+            <footer>
+            </footer>
+
+            <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+            integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+            crossorigin="anonymous"></script>
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+            integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+            crossorigin="anonymous"></script>
+            <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+            integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+            crossorigin="anonymous"></script>
+        </body>
+        <style>
+            table {
+            border: #b2b2b2 1px solid;
+            border-collapse: separate;
+
+            }
+            th {
+            border: black 1px solid;
+            padding-top: 12px;
+            padding-bottom: 12px;
+            text-align: left;
+            background-color: #357baa;
+            color: white;
+            }
+            td, th {
+            border: 1px solid #ddd;
+            padding: 8px;
+            }
+
+            tr:nth-child(even){background-color: #c0c0c0;}
+
+            tr:hover {background-color: #ddd;}
+
+
+            </style>
+
+        </body>
+            """
+
+            html = html_cabeza  + html_header + html_mid + hmtl_end + html_pie
+
+            f.write(html)     
+            f.close()     
+            file = webbrowser.open(nombre+'.html')  
+        else:
+            messagebox.showerror(message="No tienes ningún token", title="Alerta")
+    except Exception as e:
+        messagebox.showerror(message="Error, no se a cargado o analizado ningúna información", title="Alerta")
+
+def rep_token():
+    try:
+        if tokn is not empty:
+
+            f = open('Reporte_token.html', 'w')  
+
+            html_cabeza = """
+            <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Reporte de Token</title>
+        </head>
+
+        <body>
+
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+            integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+
+
+
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+            <a class="navbar-brand"> &nbsp;&nbsp;&nbsp;Reporte</a>
+        </nav>
+
+        """
+            html_header = '''
+            <center>
+            <h3>
+            Lista de tokens
+            </h3>
+            </center>
+            <table border="1", style="margin: 0 auto;",class="default">
+            <tr>
+            <th>Tokens</th>
+            </tr>
+            '''
+            html_mid = ''
+            for a in range(len(tokn)):
+                n = tokn[a]
+                html_mid += '''<tr>
+            <td>{}</td>
+            </tr>'''.format(n)
+
+            hmtl_end = """</table><br><br>
+            """
+            html_pie="""
+
+
+            <br><br><br><br><br><br>
+            <footer>
+            </footer>
+
+            <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+            integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+            crossorigin="anonymous"></script>
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+            integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+            crossorigin="anonymous"></script>
+            <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+            integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+            crossorigin="anonymous"></script>
+        </body>
+        <style>
+            table {
+            border: #b2b2b2 1px solid;
+            border-collapse: separate;
+
+            }
+            th {
+            border: black 1px solid;
+            padding-top: 12px;
+            padding-bottom: 12px;
+            text-align: left;
+            background-color: #357baa;
+            color: white;
+            }
+            td, th {
+            border: 1px solid #ddd;
+            padding: 8px;
+            }
+
+            tr:nth-child(even){background-color: #c0c0c0;}
+
+            tr:hover {background-color: #ddd;}
+
+
+            </style>
+
+        </body>
+            """
+
+            html = html_cabeza  + html_header + html_mid + hmtl_end + html_pie
+
+            f.write(html)     
+            f.close()     
+            file = webbrowser.open('Reporte_token.html')  
+        else:
+            messagebox.showerror(message="No tienes ningún token", title="Alerta")
+    except Exception as e:
+        messagebox.showerror(message="Error, no se a cargado o analizado ningúna información", title="Alerta")
+    
+    
+
+def rep_error():
+    try:
+        if len(error) != 0:
+
+            f = open('Reporte_error.html', 'w')  
+
+            html_cabeza = """
+            <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Reporte de Errores</title>
+        </head>
+
+        <body>
+
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+            integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+
+
+
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+            <a class="navbar-brand"> &nbsp;&nbsp;&nbsp;Reporte</a>
+        </nav>
+
+        """
+            html_header = '''
+            <center>
+            <h3>
+            Lista de errores
+            </h3>
+            </center>
+            <table border="1", style="margin: 0 auto;",class="default">
+            <tr>
+            <th>Errores</th>
+            </tr>
+            '''
+            html_mid = ''
+            for a in range(len(error)):
+                n = error[a]
+                html_mid += '''<tr>
+            <td>{}</td>
+            </tr>'''.format(n)
+
+            hmtl_end = """</table><br><br>
+            """
+            html_pie="""
+
+
+            <br><br><br><br><br><br>
+            <footer>
+            </footer>
+
+            <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+            integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+            crossorigin="anonymous"></script>
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+            integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+            crossorigin="anonymous"></script>
+            <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+            integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+            crossorigin="anonymous"></script>
+        </body>
+        <style>
+            table {
+            border: #b2b2b2 1px solid;
+            border-collapse: separate;
+
+            }
+            th {
+            border: black 1px solid;
+            padding-top: 12px;
+            padding-bottom: 12px;
+            text-align: left;
+            background-color: #357baa;
+            color: white;
+            }
+            td, th {
+            border: 1px solid #ddd;
+            padding: 8px;
+            }
+
+            tr:nth-child(even){background-color: #c0c0c0;}
+
+            tr:hover {background-color: #ddd;}
+
+
+            </style>
+
+        </body>
+            """
+
+            html = html_cabeza  + html_header + html_mid + hmtl_end + html_pie
+
+            f.write(html)     
+            f.close()     
+            file = webbrowser.open('Reporte_error.html')  
+        else:
+            messagebox.showerror(message="Felicidades no tienes errores", title="Alerta")
+    except Exception as e:
+        messagebox.showerror(message="Error, no se a cargado o analizado ningúna información", title="Alerta")
 
 # -----------------------------------------------------------------------------------------------------------------------
 # -----------------------------------------------------------------------------------------------------------------------
@@ -406,7 +787,7 @@ def hola():
 
 
 boton1 = tkinter.Button(ventana, text="Reporte de errores", fg="black", font=(
-    "broadway 12 bold"), command=lista, borderwidth=0, bg="lightgrey")
+    "broadway 12 bold"), command=rep_error, borderwidth=0, bg="lightgrey")
 boton1.place(x=790, y=10)
 boton1.config(width=20, height=1)
 boton1.config(bd=10)
@@ -422,7 +803,7 @@ boton2.config(relief="ridge")
 
 
 boton3 = tkinter.Button(ventana, text="Reporte de tokens", fg="black", font=(
-    "broadway 12 bold"), command=hola, borderwidth=0, bg="lightgrey")
+    "broadway 12 bold"), command=rep_token, borderwidth=0, bg="lightgrey")
 boton3.place(x=790, y=130)
 boton3.config(width=20, height=1)
 boton3.config(bd=10)
