@@ -1,8 +1,8 @@
 import csv
-from tkinter import filedialog, ttk, messagebox
+from tkinter import messagebox
 import tkinter
-from wsgiref.validate import PartialIteratorWrapper
-import re
+import webbrowser
+from numpy import empty
 
 # --------------------------------------------------------- CSV --------------------------------------------------------
 
@@ -51,6 +51,7 @@ def get_value():
     jornada = ""
     flg = ""
     arch_rep = ""
+    tipo_gol = ""
     chatval = True
     resultadoval = False
     comillaval = False
@@ -59,11 +60,13 @@ def get_value():
     tablaval = False
     partidosval = False
     topval = False
-    tempoval = False 
+    tempoval = False
+    adiosval = False 
     esp_jornada = False
     esp_temp = False
     esp_bandera = False
     esp_arch = False
+    tipo_golval = False
     for letra in text_user:
         if letra == "\n":
             fila += 1
@@ -122,6 +125,13 @@ def get_value():
                 temp_min = ""
             elif temp_min == "TOP":
                 topval = True
+                tokentemp = "Token palabra reservada: ' "+temp+" ' encontrado en col. "+str(columna)
+                tokn.append(tokentemp) 
+                lexema.append(temp)
+                chatval = False 
+                temp = ""
+                temp_min = ""
+            elif temp_min == "ADIOS":
                 tokentemp = "Token palabra reservada: ' "+temp+" ' encontrado en col. "+str(columna)
                 tokn.append(tokentemp) 
                 lexema.append(temp)
@@ -266,23 +276,63 @@ def get_value():
                 else:   
                     tokentemp = "Token archivo: ' "+arch_rep+" ' encontrado en col. "+str(columna)
                     tokn.append(tokentemp) 
-                    lexema.append(arch_rep)  
-                    print(lexema)                    
+                    lexema.append(arch_rep)       
 
+        elif golesval == True:  
+            if letra == " ":
+                if comillaval == False:
+                    ""
+                else:
+                    equipo += letra 
+            elif letra == "“": 
+                tokentemp = "Token contenedor cadena: ' "+letra+" ' encontrado en col. "+str(columna)
+                tokn.append(tokentemp)   
+                comillaval = True
+            elif letra == "”":                
+                comillaval = False              
+                if not equipo:
+                    errortemp = "Error lexico cadena vacia, se esperaria informacion,  col. "+str(columna)
+                    error.append(errortemp)  
+                else:
+                    tokentemp = "Token cadena: ' "+equipo+" ' encontrado en col. "+str(columna)
+                    tokn.append(tokentemp) 
+                    lexema.append(equipo)
+                    equipo = ""                 
+                tokentemp = "Token contenedor cadena: ' "+letra+" ' encontrado en col. "+str(columna)
+                tokn.append(tokentemp)   
+            elif comillaval == True:
+                equipo += letra 
+            elif comillaval == False:
+                if letra == "<":
+                    tokentemp = "Token contenedor temporada: ' "+letra+" ' encontrado en col. "+str(columna)
+                    tokn.append(tokentemp) 
+                    tempoval = True
+                elif letra == ">":
+                    tokentemp = "Token temporada:' "+tempo+" ' encontrado en col. "+str(columna)
+                    tokn.append(tokentemp) 
+                    lexema.append(tempo)
+                    tempo = ""
+                    tokentemp = "Token contenedor temporada: ' "+letra+" ' encontrado en col. "+str(columna)
+                    tokn.append(tokentemp) 
+                    tempoval = False
+                elif tempoval == False:
+                    temp += letra
+                    temp_min += letra.upper()
+                    if temp_min == "LOCAL" or temp_min == "VISITANTE" or temp_min == "TOTAL":
+                        tokentemp = "Token palabra reservada: ' "+temp+" ' encontrado en col. "+str(columna)
+                        tokn.append(tokentemp) 
+                        lexema.append(temp)
+                        temp = ""
+                        temp_min = ""
+                    elif temp_min == "TEMPORADA":
+                        tokentemp = "Token palabra reservada: ' "+temp+" ' encontrado en col. "+str(columna)
+                        tokn.append(tokentemp) 
+                        lexema.append(temp)
+                        temp = ""
+                        temp_min = ""
+                elif tempoval == True:                       
+                    tempo += letra  
 
-
-                
-
-
-                    
-
-            
-            
-
-
-
-        elif golesval == True:
-            ""
         elif tablaval == True:
             ""
         elif partidosval == True:
@@ -300,6 +350,8 @@ def sintactico(lexema):
     equipo1 = []
     equipo2 = []
     resultado = []
+    goles = 0
+    goles1 = 0
     respuesta = ""
     partidos
     for lista in range(len(lexema)):     
@@ -371,13 +423,106 @@ def sintactico(lexema):
                 break
             
         elif lexema[0] == "GOLES":
-            ""
+
+            if lexema[1] == "LOCAL":
+                equipo1 = list(filter(lambda item: item['Equipo1'] == lexema[2], partidos)) 
+                if bool(equipo1) == False:
+                    respuesta = "El equipo local especificado no exciste.\n\n"
+                    resp_txt(respuesta)
+                    break
+                if lexema[3] == "TEMPORADA":
+                    resultado = list(filter(lambda item: item['Temporada'] == lexema[4], equipo1))
+                    if bool(resultado) == False:
+                        respuesta = "La temporada especificada no exciste.\n\n"
+                        resp_txt(respuesta)
+                        break
+                    for g in range(len(resultado)):
+                        gol = int(resultado[g]["Goles1"])
+                        goles += gol
+                    respuesta = "El Bicho bot:\n El "+lexema[2]+" anoto "+str(goles)+" goles como local en la temporada "+ lexema[4] +"\n\n"
+
+                    resp_txt(respuesta)
+                    break
+                else:
+                    errortemp = "Error sintactico: "+ lexema[4]  +" no es reconocido por este lenguaje col. "+str(columna)
+                    error.append(errortemp)
+                    respuesta = "Error sintactico: "+ lexema[4]  +" no es reconocido por este lenguaje col. "+str(columna)+"\n\n"
+                    resp_txt(respuesta)
+                    break
+            elif lexema[1] == "VISITANTE":
+                equipo2 = list(filter(lambda item: item['Equipo2'] == lexema[2], partidos))                
+                if bool(equipo2) == False:
+                    respuesta = "El equipo visitante especificado no exciste.\n\n"
+                    resp_txt(respuesta)
+                    break
+                if lexema[3] == "TEMPORADA":
+                    resultado = list(filter(lambda item: item['Temporada'] == lexema[4], equipo2))
+                    if bool(resultado) == False:
+                        respuesta = "La temporada especificada no exciste.\n\n"
+                        resp_txt(respuesta)
+                        break
+                    for g in range(len(resultado)):
+                        gol = int(resultado[g]["Goles2"])
+                        goles += gol
+                    respuesta = "El Bicho bot:\n El "+lexema[2]+" anoto "+str(goles)+" goles como visitante en la temporada "+ lexema[4] +"\n\n"
+                    resp_txt(respuesta)
+                    break
+                else:
+                    errortemp = "Error sintactico: "+ lexema[4]  +" no es reconocido por este lenguaje col. "+str(columna)
+                    error.append(errortemp)
+                    respuesta = "Error sintactico: "+ lexema[4]  +" no es reconocido por este lenguaje col. "+str(columna)+"\n\n"
+                    resp_txt(respuesta)
+                    break
+            elif lexema[1] == "TOTAL":
+                equipo1 = list(filter(lambda item: item['Equipo1'] == lexema[2], partidos)) 
+                equipo2 = list(filter(lambda item: item['Equipo2'] == lexema[2], partidos))                
+                if bool(equipo1) == False:
+                    respuesta = "El equipo especificado no exciste.\n\n"
+                    resp_txt(respuesta)
+                    break                               
+                
+                if lexema[3] == "TEMPORADA":
+                    resultado = list(filter(lambda item: item['Temporada'] == lexema[4], equipo1))
+                    resultado1 = list(filter(lambda item: item['Temporada'] == lexema[4], equipo2))
+                    if bool(resultado) == False or bool(resultado1) == False:
+                        respuesta = "La temporada especificada no exciste.\n\n"
+                        resp_txt(respuesta)
+                        break
+                    for h in range(len(resultado)):
+                        gol = int(resultado[h]["Goles1"])
+                        goles += gol
+
+                    for g in range(len(resultado1)):
+                        gol1 = int(resultado1[g]["Goles2"])
+                        goles1 += gol1
+
+                    respuesta = "El Bicho bot:\n El "+lexema[2]+" anoto "+str(goles+goles1)+" goles en total durante la temporada "+ lexema[4] +"\n\n"
+
+                    resp_txt(respuesta)
+                    break
+                else:
+                    errortemp = "Error sintactico: "+ lexema[4]  +" no es reconocido por este lenguaje col. "+str(columna)
+                    error.append(errortemp)
+                    respuesta = "Error sintactico: "+ lexema[4]  +" no es reconocido por este lenguaje col. "+str(columna)+"\n\n"
+                    resp_txt(respuesta)
+                    break
+            else:
+                errortemp = "Error sintactico: "+ lexema[1]  +" no es reconocido por este lenguaje col. "+str(columna)
+                error.append(errortemp) 
+                respuesta = "Error sintactico: "+ lexema[1]  +" no es reconocido por este lenguaje col. "+str(columna)+"\n\n"
+                resp_txt(respuesta)
+                break
+
         elif lexema[0] == "TABLA":
             ""
         elif lexema[0] == "PARTIDOS":
             ""
         elif lexema[0] == "TOP":
             ""
+        elif lexema[0] == "ADIOS":
+            resp = "Hasta pronto, que todo vaya bien.\n\n"
+            resp_txt(resp)
+            ventana.after(3000,lambda:ventana.destroy())
         else:
             errortemp = "Error sintactico: "+ lexema[0]  +" no es reconocido por este lenguaje col. "+str(columna)
             error.append(errortemp) 
@@ -390,33 +535,13 @@ def resp_txt(R):
     text.configure(state='normal')
     text.insert(tkinter.END, R)
     text.configure(state='disabled')
-
-def carga(artemp):    
-    text.insert(tkinter.END, artemp)
-
-def recarga(artemp):
-    text.insert(tkinter.END, artemp)
-
-  
-
+ 
 def log_errores():
     error.clear() 
 
 def log_token():
     tokn.clear()       
-
-            
-def lista():
-    print(tokn)
-    print(lexema)
-    text.configure(state='normal')
-    text.insert("1.0", lexema)
-    text.configure(state='disabled')
-
-
-import webbrowser
-from numpy import empty
-
+   
 def rep_jornadas(valores,csv_L):   
 
 
@@ -428,13 +553,11 @@ def rep_jornadas(valores,csv_L):
             else:
                 nombre = "jornada"
 
-            f = open(nombre+'.html', 'w')  
+            f = open(nombre+'.html', 'w', encoding='utf-8')  
 
             html_cabeza = """
         <head>
-        <meta charset="UTF-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
         <title>Reporte de Jornadas</title>
         </head>
 
@@ -631,8 +754,6 @@ def rep_token():
     except Exception as e:
         messagebox.showerror(message="Error, no se a cargado o analizado ningúna información", title="Alerta")
     
-    
-
 def rep_error():
     try:
         if len(error) != 0:
