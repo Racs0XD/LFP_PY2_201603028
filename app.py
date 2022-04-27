@@ -577,10 +577,9 @@ def sintactico(lexema):
                     resp_txt(respuesta)
                     break
                 if len(lexema) == 5:
-                    print(len(lexema))
                     if lexema[3] == "-f":
                         respuesta = "El Bicho bot:\n Generando archivo de clasificación de temporada "+lexema[2]+"\n\n"
-                        prueba(lexema,resultado)
+                        rep_temporadas(lexema,resultado)
                         resp_txt(respuesta)
                         break
                 else:
@@ -623,66 +622,7 @@ def log_token():
     
     
     
-def prueba(valores,csv_L):
-    equipos = []
-    tabla = []
-    puntos = []
-    html_mid = ''
-    for x in range(len(csv_L)):  
-        if csv_L[x]["Equipo1"] not in equipos:
-            r1 = {
-                "e":csv_L[x]["Equipo1"],
-                "p":0
-            }
-            equipos.append(csv_L[x]["Equipo1"])
-            tabla.append(r1)
-        if csv_L[x]["Equipo2"] not in equipos:
-            r2 = {
-                "e":csv_L[x]["Equipo2"],
-                "p":0
-            }
-            equipos.append(csv_L[x]["Equipo2"])
-            tabla.append(r2) 
-    print(tabla)     
 
-    for z in range(len(csv_L)):             
-        
-        
-        if int(csv_L[z]["Goles1"]) > int(csv_L[z]["Goles2"]):
-            "Local"
-                      
-            
-            if csv_L[z]["Equipo1"] in tabla:  
-                print(tabla[z]["e"])       
-            
-   
-                    
-                
-                
-                
-                
-    """ if csv_L[z]["Equipo1"] not in equipos:
-            equipos.append(csv_L[z]["Equipo1"])
-        elif csv_L[z]["Equipo2"] not in equipos:
-            equipos.append(csv_L[z]["Equipo2"])              
-        else:
-            return      """         
-        
-        
-        
-    """if csv_L[z]["Equipo2"] not in equipos:
-            equipos.append(csv_L[z]["Equipo2"])              
-        else:
-            return  
-        rs = {
-            csv_L[z]["Equipo1"]:csv_L[z]["Goles1"],
-            csv_L[z]["Equipo2"]:csv_L[z]["Goles2"]
-        }
-    elif int(csv_L[z]["Goles1"]) < int(csv_L[z]["Goles2"]):
-        "Visitante"
-    elif int(csv_L[z]["Goles1"]) == int(csv_L[z]["Goles2"]):
-        "Empate"    """
-    
    
 def rep_jornadas(valores,csv_L):   
     try:
@@ -792,6 +732,14 @@ def rep_jornadas(valores,csv_L):
     except Exception as e:
         messagebox.showerror(message="Error, no se a cargado o analizado ningúna información", title="Alerta")
 
+def bubble_sort(lista):
+    for i in range(len(lista)):
+        for j in range(len(lista)-1):
+            if lista[j]['p'] < lista[j+1]['p']:
+                temp = lista[j]
+                lista[j] = lista[j+1]
+                lista[j+1] = temp
+
 def rep_temporadas(valores,csv_L):
     try:
         if tokn is not empty:
@@ -830,83 +778,74 @@ def rep_temporadas(valores,csv_L):
             <table border="1", style="margin: 0 auto;",class="default">
             <tr>
             <th>Equipos</th>
-            <th>PG</th>
-            <th>PE</th>
-            <th>PP</th>
+            <th>Puntuación</th>
             </tr>
             '''.format(valores[2])
             equipos = []
-            pg = []
-            pe = []
-            pp = []
+            tabla = []
+            puntos = []
             html_mid = ''
-            for z in range(len(csv_L)):
-                if csv_L[z]["Equipo1"] not in equipos:
-                    equipos.append(csv_L[z]["Equipo1"])
-                elif csv_L[z]["Equipo2"] not in equipos:
-                    equipos.append(csv_L[z]["Equipo2"])              
-                else:
-                    return              
-                
-                
-                if int(csv_L[a]["Goles1"]) > int(csv_L[a]["Goles2"]):
-                    "Local"
-                    if csv_L[z]["Equipo1"] not in equipos:
-                        rs = {
-                            "e":csv_L[z]["Equipo1"],
-                            "pg":3,
-                            "pe":0,
-                            "pp":0
-                        }                       
-                        equipos.append(rs)
-                    else:
-                        ""
-                        
-                    
-                    
-                    
-                    if csv_L[z]["Equipo2"] not in equipos:
-                        equipos.append(csv_L[z]["Equipo2"])              
-                    else:
-                        return  
-                    rs = {
-                        csv_L[a]["Equipo1"]:csv_L[a]["Goles1"],
-                        csv_L[a]["Equipo2"]:csv_L[a]["Goles2"]
+            for x in range(len(csv_L)):  
+                if csv_L[x]["Equipo1"] not in equipos:
+                    r1 = {
+                        "e":csv_L[x]["Equipo1"],
+                        "p":0
                     }
-                elif int(csv_L[a]["Goles1"]) < int(csv_L[a]["Goles2"]):
-                    "Visitante"
-                elif int(csv_L[a]["Goles1"]) == int(csv_L[a]["Goles2"]):
-                    "Empate"
-                    
-                    
-                    
-                    
-                    
-                
-                
-                
-            for a in range(len(csv_L)):
-                
-                if int(csv_L[a]["Goles1"]) > int(csv_L[a]["Goles2"]):
-                    "Local"
-                    rs = {
-                        csv_L[a]["Equipo1"]:csv_L[a]["Goles1"],
-                        csv_L[a]["Equipo2"]:csv_L[a]["Goles2"]
+                    equipos.append(csv_L[x]["Equipo1"])
+                    tabla.append(r1)
+                if csv_L[x]["Equipo2"] not in equipos:
+                    r2 = {
+                        "e":csv_L[x]["Equipo2"],
+                        "p":0
                     }
-                elif int(csv_L[a]["Goles1"]) < int(csv_L[a]["Goles2"]):
+                    equipos.append(csv_L[x]["Equipo2"])
+                    tabla.append(r2) 
+            for z in range(len(csv_L)):             
+
+
+                if int(csv_L[z]["Goles1"]) > int(csv_L[z]["Goles2"]):
+                    "Local"     
+
+                    equipoencontrado1 = [equip for equip in tabla if equip['e'] == csv_L[z]["Equipo1"]]
+                    if (len(equipoencontrado1)) > 0:
+                        equipoencontrado1[0]['p'] = int(equipoencontrado1[0]['p'])+3
+
+                    equipoencontrado2 = [equip2 for equip2 in tabla if equip2['e'] == csv_L[z]["Equipo2"]]
+                    if (len(equipoencontrado2)) > 0:
+                        equipoencontrado2[0]['p'] = int(equipoencontrado2[0]['p'])+0          
+
+                elif int(csv_L[z]["Goles1"]) < int(csv_L[z]["Goles2"]):
                     "Visitante"
-                elif int(csv_L[a]["Goles1"]) == int(csv_L[a]["Goles2"]):
-                    "Empate"
-                
-                n = csv_L[a]
-                n = csv_L[a]["Equipo1"]+" "+csv_L[a]["Goles1"]+" - "+csv_L[a]["Equipo2"]+" "+csv_L[a]["Goles2"]
-                
+
+                    equipoencontrado1 = [equip for equip in tabla if equip['e'] == csv_L[z]["Equipo1"]]
+                    if (len(equipoencontrado1)) > 0:
+                        equipoencontrado1[0]['p'] = int(equipoencontrado1[0]['p'])+0
+
+                    equipoencontrado2 = [equip2 for equip2 in tabla if equip2['e'] == csv_L[z]["Equipo2"]]
+                    if (len(equipoencontrado2)) > 0:
+                        equipoencontrado2[0]['p'] = int(equipoencontrado2[0]['p'])+3  
+
+                elif int(csv_L[z]["Goles1"]) == int(csv_L[z]["Goles2"]):
+                    "Empate"    
+
+                    equipoencontrado1 = [equip for equip in tabla if equip['e'] == csv_L[z]["Equipo1"]]
+                    if (len(equipoencontrado1)) > 0:
+                        equipoencontrado1[0]['p'] = int(equipoencontrado1[0]['p'])+1
+
+                    equipoencontrado2 = [equip2 for equip2 in tabla if equip2['e'] == csv_L[z]["Equipo2"]]
+                    if (len(equipoencontrado2)) > 0:
+                        equipoencontrado2[0]['p'] = int(equipoencontrado2[0]['p'])+1
+            bubble_sort(tabla)
+
+            for z in range(len(tabla)): 
+                eq = tabla[z]['e']
+                pt = tabla[z]['p']
+
+
                 html_mid += '''<tr>
                 <td>{}</td>
                 <td>{}</td>
-                <td>{}</td>
-                <td>{}</td>
-                </tr>'''.format(n)
+                </tr>'''.format(eq,pt)
 
             hmtl_end = """</table><br><br>
             """
