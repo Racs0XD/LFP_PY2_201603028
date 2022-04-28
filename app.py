@@ -727,13 +727,23 @@ def sintactico(lexema):
                         break
                                                 
                 elif len(lexema) == 10:
-                    if lexema[8] == "-f":
+                    if lexema[4] == "-f":
+
+                        for l in range(len(resultado1)):
+                            resultado.append(resultado1[l])   
+
+                        respuesta = "El Bicho bot:\n Generando archivo de resultados de temporada "+lexema[3]+" del "+lexema[1]+" \ncon las jornadas "+lexema[7]+""+lexema[9]+" con nombre "+lexema[5]+"\n\n"
+                        rep_partidos(lexema,resultado)
+                        resp_txt(respuesta)
+                        break
+
+                    elif lexema[8] == "-f":
 
                         for l in range(len(resultado1)):
                             resultado.append(resultado1[l])   
 
                         respuesta = "El Bicho bot:\n Generando archivo de resultados de temporada "+lexema[3]+" del "+lexema[1]+" \ncon las jornadas "+lexema[5]+""+lexema[7]+" con nombre "+lexema[9]+"\n\n"
-                        pb(lexema,resultado)
+                        rep_partidos(lexema,resultado)
                         resp_txt(respuesta)
                         break
                 
@@ -1092,7 +1102,7 @@ def pb(valores,csv_L):
             eq2 = tabla[z]['e2']
             g2 = tabla[z]['g2']   
         
-    elif len(valores) == 8:
+    if len(valores) == 8:
 
         for x in range(len(csv_L)):  
             r1 = {
@@ -1125,7 +1135,7 @@ def pb(valores,csv_L):
             eq2 = tabla[z]['e2']
             g2 = tabla[z]['g2']  
         
-        print(tabla1)
+            print(tabla1[z])
     elif len(valores) == 10:
         ""
 
@@ -1141,9 +1151,12 @@ def rep_partidos(valores,csv_L):
             if len(valores) == 6:
                 nombre = valores[5]
             elif len(valores) == 10:
-                nombre = valores[9]
+                if valores[4] == "-f":
+                    nombre = valores[5]
+                elif valores[8] == "-f":
+                    nombre = valores[9]
             else:
-                nombre = "temporada"
+                nombre = "partidos"
 
             f = open(nombre+'.html', 'w', encoding='utf-8')  
 
@@ -1220,42 +1233,27 @@ def rep_partidos(valores,csv_L):
                     }
                     tabla.append(r1)
                 bubble_sort2(tabla)
-           
-                """for y in range(len(tabla)): 
-                    if int(valores[5]) <= tabla[y]['j']:
-                        if int(valores[7]) >= tabla[y]['j']:
-                            r2 = {
-                                "j":int(tabla[y]['j']),
-                                "e1":tabla[y]['e1'],
-                                "g1":tabla[y]['g1'],
-                                "e2":tabla[y]['e2'],
-                                "g2":tabla[y]['g2']
-                            }
-                            tabla1.append(r2)  
-                            
-                            if tabla[y]['j'] <= int(valores[7]):
-
-                            """
 
                 for y in range(len(tabla)): 
-                    if tabla[y]['j'] >= int(valores[5]):
-                            r2 = {
-                                "j":int(tabla[y]['j']),
-                                "e1":tabla[y]['e1'],
-                                "g1":tabla[y]['g1'],
-                                "e2":tabla[y]['e2'],
-                                "g2":tabla[y]['g2']
-                            }
-                            tabla1.append(r2)      
-                    else:
-                        ""   
-                      
+                    if int(valores[5]) <= tabla[y]['j'] and int(valores[7]) >= tabla[y]['j']:
+                        r2 = {
+                            "j":int(tabla[y]['j']),
+                            "e1":tabla[y]['e1'],
+                            "g1":tabla[y]['g1'],
+                            "e2":tabla[y]['e2'],
+                            "g2":tabla[y]['g2']
+                        }
+                        tabla1.append(r2)
+
+
+
                 for z in range(len(tabla1)): 
-                    j = tabla[z]['j']
-                    eq1 = tabla[z]['e1']
-                    g1 = tabla[z]['g1']
-                    eq2 = tabla[z]['e2']
-                    g2 = tabla[z]['g2']  
+                    j = tabla1[z]['j']
+                    eq1 = tabla1[z]['e1']
+                    g1 = tabla1[z]['g1']
+                    eq2 = tabla1[z]['e2']
+                    g2 = tabla1[z]['g2']  
+                   
                     html_mid += '''<tr>
                 <td>{}</td>
                 <td>{}</td>
@@ -1264,9 +1262,83 @@ def rep_partidos(valores,csv_L):
                 <td>{}</td>
                 </tr>'''.format(j,eq1,g1,eq2,g2)
             elif len(valores) == 10:
-                ""
+                if valores[4] == "-ji":
+                    for x in range(len(csv_L)):  
+                        r1 = {
+                            "j":int(csv_L[x]["Jornada"]),
+                            "e1":csv_L[x]["Equipo1"],
+                            "g1":csv_L[x]["Goles1"],
+                            "e2":csv_L[x]["Equipo2"],
+                            "g2":csv_L[x]["Goles1"]
+                        }
+                        tabla.append(r1)
+                    bubble_sort2(tabla)
+    
+                    for y in range(len(tabla)): 
+                        if int(valores[5]) <= tabla[y]['j'] and int(valores[7]) >= tabla[y]['j']:
+                            r2 = {
+                                "j":int(tabla[y]['j']),
+                                "e1":tabla[y]['e1'],
+                                "g1":tabla[y]['g1'],
+                                "e2":tabla[y]['e2'],
+                                "g2":tabla[y]['g2']
+                            }
+                            tabla1.append(r2)
+    
+    
+    
+                    for z in range(len(tabla1)): 
+                        j = tabla1[z]['j']
+                        eq1 = tabla1[z]['e1']
+                        g1 = tabla1[z]['g1']
+                        eq2 = tabla1[z]['e2']
+                        g2 = tabla1[z]['g2']  
+                       
+                        html_mid += '''<tr>
+                    <td>{}</td>
+                    <td>{}</td>
+                    <td>{}</td>
+                    <td>{}</td>
+                    <td>{}</td>
+                    </tr>'''.format(j,eq1,g1,eq2,g2)
 
+                elif valores[6] == "-ji":
+                    for x in range(len(csv_L)):  
+                        r1 = {
+                            "j":int(csv_L[x]["Jornada"]),
+                            "e1":csv_L[x]["Equipo1"],
+                            "g1":csv_L[x]["Goles1"],
+                            "e2":csv_L[x]["Equipo2"],
+                            "g2":csv_L[x]["Goles1"]
+                        }
+                        tabla.append(r1)
+                    bubble_sort2(tabla)
 
+                    for y in range(len(tabla)): 
+                        if int(valores[7]) <= tabla[y]['j'] and int(valores[9]) >= tabla[y]['j']:
+                            r2 = {
+                                "j":int(tabla[y]['j']),
+                                "e1":tabla[y]['e1'],
+                                "g1":tabla[y]['g1'],
+                                "e2":tabla[y]['e2'],
+                                "g2":tabla[y]['g2']
+                            }
+                            tabla1.append(r2)
+
+                    for z in range(len(tabla1)): 
+                        j = tabla1[z]['j']
+                        eq1 = tabla1[z]['e1']
+                        g1 = tabla1[z]['g1']
+                        eq2 = tabla1[z]['e2']
+                        g2 = tabla1[z]['g2']  
+
+                        html_mid += '''<tr>
+                    <td>{}</td>
+                    <td>{}</td>
+                    <td>{}</td>
+                    <td>{}</td>
+                    <td>{}</td>
+                    </tr>'''.format(j,eq1,g1,eq2,g2)               
                 
 
             hmtl_end = """</table><br><br>
