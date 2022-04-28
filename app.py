@@ -391,12 +391,111 @@ def get_value():
                     lexema.append(arch_rep) 
                 
         elif partidosval == True:
-            ""
+            if letra == " ":
+                if comillaval == False:
+                    ""
+                else:
+                    equipo += letra 
+            elif letra == "“": 
+                tokentemp = "Token contenedor cadena: ' "+letra+" ' encontrado en col. "+str(columna)
+                tokn.append(tokentemp)   
+                comillaval = True
+            elif letra == "”":                
+                comillaval = False              
+                                
+                if not equipo:
+                    errortemp = "Error lexico cadena vacia, se esperaria informacion,  col. "+str(columna)
+                    error.append(errortemp)  
+                else:
+                    tokentemp = "Token cadena: ' "+equipo+" ' encontrado en col. "+str(columna)
+                    tokn.append(tokentemp) 
+                    lexema.append(equipo)
+                    equipo = ""                 
+
+                tokentemp = "Token contenedor cadena: ' "+letra+" ' encontrado en col. "+str(columna)
+                tokn.append(tokentemp)   
+
+            elif comillaval == True:
+                equipo += letra 
+
+            elif comillaval == False and esp_bandera == False and esp_arch == False:
+                
+                if letra == "<":
+                    tokentemp = "Token contenedor temporada: ' "+letra+" ' encontrado en col. "+str(columna)
+                    tokn.append(tokentemp) 
+                    tempoval = True
+                elif letra == ">":
+
+                    tokentemp = "Token temporada:' "+tempo+" ' encontrado en col. "+str(columna)
+                    tokn.append(tokentemp) 
+                    lexema.append(tempo)
+                    tempo = ""
+
+                    tokentemp = "Token contenedor temporada: ' "+letra+" ' encontrado en col. "+str(columna)
+                    tokn.append(tokentemp) 
+                    tempoval = False
+                    esp_bandera = True
+
+                elif tempoval == False:
+                    temp += letra
+                    temp_min += letra.upper()
+                    if temp_min == "TEMPORADA":
+                        tokentemp = "Token palabra reservada: ' "+temp+" ' encontrado en col. "+str(columna)
+                        tokn.append(tokentemp) 
+                        lexema.append(temp)
+                        temp = ""
+                        temp_min = ""
+                elif tempoval == True:                       
+                    tempo += letra
+            elif esp_bandera == True:                       
+                if letra == " ":
+                    ""
+                else:
+                    flg += letra
+                    if flg == "-f":
+                        tokentemp = "Token palabra reservada: ' "+flg+" ' encontrado en col. "+str(columna)
+                        tokn.append(tokentemp) 
+                        lexema.append(flg)  
+                        esp_arch = True  
+                        esp_bandera = False
+                        flg = ""  
+                    elif flg == "-ji":
+                        tokentemp = "Token palabra reservada: ' "+flg+" ' encontrado en col. "+str(columna)
+                        tokn.append(tokentemp) 
+                        lexema.append(flg)  
+                        esp_arch = True  
+                        esp_bandera = False
+                        flg = "" 
+                    elif flg == "-jf":
+                        tokentemp = "Token palabra reservada: ' "+flg+" ' encontrado en col. "+str(columna)
+                        tokn.append(tokentemp) 
+                        lexema.append(flg)  
+                        esp_arch = True  
+                        esp_bandera = False
+                        flg = ""    
+            elif esp_arch == True:
+                if letra== " ":
+                    ""
+                elif letra != "." and letra != "-":
+                    arch_rep += letra                             
+                else:   
+                    if letra == "-":
+                        esp_bandera = True
+                        flg += letra
+                        tokentemp = "Token archivo: ' "+arch_rep+" ' encontrado en col. "+str(columna)
+                        tokn.append(tokentemp) 
+                        lexema.append(arch_rep)
+                        arch_rep = ""
+                    else:
+                        tokentemp = "Token archivo: ' "+arch_rep+" ' encontrado en col. "+str(columna)
+                        tokn.append(tokentemp) 
+                        lexema.append(arch_rep)
+                        
         elif topval == True:
             ""
 
     #resp_txt(lexema)
-    #print(lexema)
+    print(lexema)
     sintactico(lexema)
 
 
@@ -594,7 +693,65 @@ def sintactico(lexema):
                 resp_txt(respuesta)
                 break
         elif lexema[0] == "PARTIDOS":
-            ""
+            equipo1 = list(filter(lambda item: item['Equipo1'] == lexema[1], partidos)) 
+            equipo2 = list(filter(lambda item: item['Equipo2'] == lexema[1], partidos))                
+            if bool(equipo1) == False:
+                respuesta = "El equipo especificado no exciste.\n\n"
+                resp_txt(respuesta)
+                break
+            if lexema[2] == "TEMPORADA":
+                resultado = list(filter(lambda item: item['Temporada'] == lexema[3], equipo1))
+                resultado1 = list(filter(lambda item: item['Temporada'] == lexema[3], equipo2))
+                if bool(resultado) == False or bool(resultado1) == False:
+                    respuesta = "La temporada especificada no exciste o el equipo especificado no juego en esa temporada.\n\n"
+                    resp_txt(respuesta)
+                    break
+
+                if len(lexema) == 6:
+                    if lexema[4] == "-f":
+                        for l in range(len(resultado1)):
+                            resultado.append(resultado1[l]) 
+                        respuesta = "El Bicho bot:\n Generando archivo de resultados de temporada "+lexema[3]+" del "+lexema[1]+" \ncon nombre "+lexema[5]+"\n\n"
+                        rep_partidos(lexema,resultado)
+                        resp_txt(respuesta)
+                        break
+                    
+                elif len(lexema) == 8:
+                    if lexema[4] == "-ji" and lexema[6] == "-jf":      
+                        
+                        for l in range(len(resultado1)):
+                            resultado.append(resultado1[l])                       
+                        respuesta = "El Bicho bot:\n Generando archivo de resultados de temporada "+lexema[3]+" del "+lexema[1]+" \ncon las jornadas "+lexema[5]+" - "+lexema[7]+"\n\n"
+                        rep_partidos(lexema,resultado)
+                        resp_txt(respuesta)                   
+                        break
+                                                
+                elif len(lexema) == 10:
+                    if lexema[8] == "-f":
+
+                        for l in range(len(resultado1)):
+                            resultado.append(resultado1[l])   
+
+                        respuesta = "El Bicho bot:\n Generando archivo de resultados de temporada "+lexema[3]+" del "+lexema[1]+" \ncon las jornadas "+lexema[5]+""+lexema[7]+" con nombre "+lexema[9]+"\n\n"
+                        pb(lexema,resultado)
+                        resp_txt(respuesta)
+                        break
+                
+                else:
+                    respuesta = "El Bicho bot:\n Generando archivo de resultados de temporada "+lexema[3]+" del "+lexema[1]+"\n\n"
+                    pb(lexema,resultado)
+                    resp_txt(respuesta)
+                    break        
+            else:
+                errortemp = "Error sintactico: "+ lexema[1]  +" no es reconocido por este lenguaje col. "+str(columna)
+                error.append(errortemp)
+                respuesta = "Error sintactico: "+ lexema[1]  +" no es reconocido por este lenguaje col. "+str(columna)+"\n\n"
+                resp_txt(respuesta)
+                break
+
+
+
+
         elif lexema[0] == "TOP":
             ""
         elif lexema[0] == "ADIOS":
@@ -846,6 +1003,271 @@ def rep_temporadas(valores,csv_L):
                 <td>{}</td>
                 <td>{}</td>
                 </tr>'''.format(eq,pt)
+
+            hmtl_end = """</table><br><br>
+            """
+            html_pie="""
+
+
+            <br><br><br><br><br><br>
+            <footer>
+            </footer>
+
+            <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+            integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+            crossorigin="anonymous"></script>
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+            integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+            crossorigin="anonymous"></script>
+            <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+            integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+            crossorigin="anonymous"></script>
+        </body>
+        <style>
+            table {
+            border: #b2b2b2 1px solid;
+            border-collapse: separate;
+
+            }
+            th {
+            border: black 1px solid;
+            padding-top: 12px;
+            padding-bottom: 12px;
+            text-align: left;
+            background-color: #357baa;
+            color: white;
+            }
+            td, th {
+            border: 1px solid #ddd;
+            padding: 8px;
+            }
+
+            tr:nth-child(even){background-color: #c0c0c0;}
+
+            tr:hover {background-color: #ddd;}
+
+
+            </style>
+
+        </body>
+            """
+
+            html = html_cabeza  + html_header + html_mid + hmtl_end + html_pie
+
+            f.write(html)     
+            f.close()     
+            file = webbrowser.open(nombre+'.html')  
+        else:
+            messagebox.showerror(message="No tienes ningún token", title="Alerta")
+    except Exception as e:
+        messagebox.showerror(message="Error, no se a cargado o analizado ningúna información", title="Alerta")
+
+def bubble_sort2(lista):
+    for i in range(len(lista)):
+        for j in range(len(lista)-1):
+            if lista[j]['j'] > lista[j+1]['j']:
+                temp = lista[j]
+                lista[j] = lista[j+1]
+                lista[j+1] = temp
+
+def pb(valores,csv_L):
+    tabla = []
+    tabla1= []
+    html_mid = ''
+    if len(valores) == 6:        
+        for x in range(len(csv_L)):  
+            r1 = {
+                "j":int(csv_L[x]["Jornada"]),
+                "e1":csv_L[x]["Equipo1"],
+                "g1":csv_L[x]["Goles1"],
+                "e2":csv_L[x]["Equipo2"],
+                "g2":csv_L[x]["Goles1"],
+            }
+            tabla.append(r1)
+        bubble_sort2(tabla)
+        for z in range(len(tabla)): 
+            j = tabla[z]['j']
+            eq1 = tabla[z]['e1']
+            g1 = tabla[z]['g1']
+            eq2 = tabla[z]['e2']
+            g2 = tabla[z]['g2']   
+        
+    elif len(valores) == 8:
+
+        for x in range(len(csv_L)):  
+            r1 = {
+                "j":int(csv_L[x]["Jornada"]),
+                "e1":csv_L[x]["Equipo1"],
+                "g1":csv_L[x]["Goles1"],
+                "e2":csv_L[x]["Equipo2"],
+                "g2":csv_L[x]["Goles1"]
+            }
+            tabla.append(r1)
+        bubble_sort2(tabla)
+
+        for y in range(len(tabla)): 
+            if int(valores[5]) <= tabla[y]['j'] and int(valores[7]) >= tabla[y]['j']:
+                r2 = {
+                    "j":int(tabla[y]['j']),
+                    "e1":tabla[y]['e1'],
+                    "g1":tabla[y]['g1'],
+                    "e2":tabla[y]['e2'],
+                    "g2":tabla[y]['g2']
+                }
+                tabla1.append(r2)
+
+
+
+        for z in range(len(tabla1)): 
+            j = tabla[z]['j']
+            eq1 = tabla[z]['e1']
+            g1 = tabla[z]['g1']
+            eq2 = tabla[z]['e2']
+            g2 = tabla[z]['g2']  
+        
+        print(tabla1)
+    elif len(valores) == 10:
+        ""
+
+    
+   
+
+
+
+def rep_partidos(valores,csv_L):
+    try:
+        if tokn is not empty:
+           
+            if len(valores) == 6:
+                nombre = valores[5]
+            elif len(valores) == 10:
+                nombre = valores[9]
+            else:
+                nombre = "temporada"
+
+            f = open(nombre+'.html', 'w', encoding='utf-8')  
+
+            html_cabeza = """
+        <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <title>Reporte de Partidos</title>
+        </head>
+
+        <body>
+
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+            integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+
+
+
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+            <a class="navbar-brand"> &nbsp;&nbsp;&nbsp;Reporte</a>
+        </nav>
+
+        """
+            html_header = '''
+            <center>
+            <h3>
+            Lista de todos los partidos del {} en la temporada {}
+            </h3>
+            </center>
+            <table border="1", style="margin: 0 auto;",class="default">
+            <tr>
+            <th>Jornadas</th>
+            <th>Equipo Local</th>
+            <th>Goles Local</th>
+            <th>Equipo Visitante</th>
+            <th>Goles Visitante</th>
+            </tr>
+            '''.format(valores[1],valores[3])
+            tabla = []
+            tabla1 = []
+            html_mid = ''
+            if len(valores) == 6:        
+                for x in range(len(csv_L)):  
+                    r1 = {
+                        "j":int(csv_L[x]["Jornada"]),
+                        "e1":csv_L[x]["Equipo1"],
+                        "g1":csv_L[x]["Goles1"],
+                        "e2":csv_L[x]["Equipo2"],
+                        "g2":csv_L[x]["Goles1"],
+                    }
+                    tabla.append(r1)
+                bubble_sort2(tabla)
+                for z in range(len(tabla)): 
+                    j = tabla[z]['j']
+                    eq1 = tabla[z]['e1']
+                    g1 = tabla[z]['g1']
+                    eq2 = tabla[z]['e2']
+                    g2 = tabla[z]['g2']
+
+                    html_mid += '''<tr>
+                <td>{}</td>
+                <td>{}</td>
+                <td>{}</td>
+                <td>{}</td>
+                <td>{}</td>
+                </tr>'''.format(j,eq1,g1,eq2,g2)
+
+            elif len(valores) == 8:
+                for x in range(len(csv_L)):  
+                    r1 = {
+                        "j":int(csv_L[x]["Jornada"]),
+                        "e1":csv_L[x]["Equipo1"],
+                        "g1":csv_L[x]["Goles1"],
+                        "e2":csv_L[x]["Equipo2"],
+                        "g2":csv_L[x]["Goles1"]
+                    }
+                    tabla.append(r1)
+                bubble_sort2(tabla)
+           
+                """for y in range(len(tabla)): 
+                    if int(valores[5]) <= tabla[y]['j']:
+                        if int(valores[7]) >= tabla[y]['j']:
+                            r2 = {
+                                "j":int(tabla[y]['j']),
+                                "e1":tabla[y]['e1'],
+                                "g1":tabla[y]['g1'],
+                                "e2":tabla[y]['e2'],
+                                "g2":tabla[y]['g2']
+                            }
+                            tabla1.append(r2)  
+                            
+                            if tabla[y]['j'] <= int(valores[7]):
+
+                            """
+
+                for y in range(len(tabla)): 
+                    if tabla[y]['j'] >= int(valores[5]):
+                            r2 = {
+                                "j":int(tabla[y]['j']),
+                                "e1":tabla[y]['e1'],
+                                "g1":tabla[y]['g1'],
+                                "e2":tabla[y]['e2'],
+                                "g2":tabla[y]['g2']
+                            }
+                            tabla1.append(r2)      
+                    else:
+                        ""   
+                      
+                for z in range(len(tabla1)): 
+                    j = tabla[z]['j']
+                    eq1 = tabla[z]['e1']
+                    g1 = tabla[z]['g1']
+                    eq2 = tabla[z]['e2']
+                    g2 = tabla[z]['g2']  
+                    html_mid += '''<tr>
+                <td>{}</td>
+                <td>{}</td>
+                <td>{}</td>
+                <td>{}</td>
+                <td>{}</td>
+                </tr>'''.format(j,eq1,g1,eq2,g2)
+            elif len(valores) == 10:
+                ""
+
+
+                
 
             hmtl_end = """</table><br><br>
             """
