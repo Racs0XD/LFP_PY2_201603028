@@ -23,23 +23,12 @@ with open('LaLigaBot-LFP.csv', encoding='utf-8') as file:
 # -----------------------------------------------------------------------------------------------------------------------
 # -----------------------------------------------------------------------------------------------------------------------
 
-#RESULTADO “Real Madrid” VS “Villarreal” TEMPORADA <2019-2020>
-#JORNADA 12 TEMPORADA <2019-2020>
-#JORNADA 1 TEMPORADA <1996-1997> -f jornada1Reporte
-#GOLES TOTAL “Valencia” TEMPORADA <1998-1999>
-#TABLA TEMPORADA <2018-2019>
-#TABLA TEMPORADA <1996-1997> -f reporteGlobal1
-#PARTIDOS “Real Madrid” TEMPORADA <1999-2000> -ji 1 -jf 18
-#PARTIDOS “Español” TEMPORADA <1999-2000> -f reporteEspano
-#TOP SUPERIOR TEMPORADA <2000-2001>
-#TOP INFERIOR TEMPORADA <1999-2000> -n 3
-
 def get_value():
     
     text_user = txtA.get()+"."
 
     text.configure(state='normal')
-    text.insert(tkinter.END, "Usuario:\n"+text_user+"\n\n")
+    text.insert(tkinter.END, "\nUsuario:\n"+text_user+"\n\n")
     text.configure(state='disabled')
 
     global lexema, columna
@@ -52,7 +41,6 @@ def get_value():
     jornada = ""
     flg = ""
     arch_rep = ""
-    tipo_gol = ""
     chatval = True
     resultadoval = False
     comillaval = False
@@ -67,7 +55,7 @@ def get_value():
     esp_temp = False
     esp_bandera = False
     esp_arch = False
-    tipo_golval = False
+    esp_condicion = False
     for letra in text_user:
         if letra == "\n":
             fila += 1
@@ -278,7 +266,6 @@ def get_value():
                     tokentemp = "Token archivo: ' "+arch_rep+" ' encontrado en col. "+str(columna)
                     tokn.append(tokentemp) 
                     lexema.append(arch_rep)       
-
         elif golesval == True:  
             if letra == " ":
                 if comillaval == False:
@@ -333,7 +320,6 @@ def get_value():
                         temp_min = ""
                 elif tempoval == True:                       
                     tempo += letra  
-
         elif tablaval == True:
             if letra == " "  and esp_temp == False and esp_bandera == False and esp_arch == False:
                 esp_temp = True                     
@@ -388,8 +374,7 @@ def get_value():
                 else:   
                     tokentemp = "Token archivo: ' "+arch_rep+" ' encontrado en col. "+str(columna)
                     tokn.append(tokentemp) 
-                    lexema.append(arch_rep) 
-                
+                    lexema.append(arch_rep)       
         elif partidosval == True:
             if letra == " ":
                 if comillaval == False:
@@ -489,10 +474,79 @@ def get_value():
                     else:
                         tokentemp = "Token archivo: ' "+arch_rep+" ' encontrado en col. "+str(columna)
                         tokn.append(tokentemp) 
-                        lexema.append(arch_rep)
-                        
+                        lexema.append(arch_rep)     
         elif topval == True:
-            ""
+            if letra == " "  and esp_condicion == False and esp_temp == False and esp_bandera == False and esp_arch == False:
+                esp_condicion = True   
+            elif esp_condicion == True:
+                if letra == " ":
+                    ""
+                else:
+                    temp += letra 
+                    temp_min += letra.upper()
+                    if temp_min == "SUPERIOR" or temp_min == "INFERIOR":
+                        tokentemp = "Token condicion: ' "+temp+" ' encontrado en col. "+str(columna)
+                        tokn.append(tokentemp) 
+                        lexema.append(temp)
+                        esp_temp = True
+                        esp_condicion = False
+                        temp = ""
+                        temp_min = ""                        
+
+            elif esp_temp == True:
+                if letra == " ":
+                    ""
+                elif letra == "<":
+                    tokentemp = "Token contenedor temporada: ' "+letra+" ' encontrado en col. "+str(columna)
+                    tokn.append(tokentemp) 
+                    tempoval = True
+
+                elif letra == ">":
+                    tokentemp = "Token temporada:' "+tempo+" ' encontrado en col. "+str(columna)
+                    tokn.append(tokentemp) 
+                    lexema.append(tempo)
+                    tempo = ""
+
+                    tokentemp = "Token contenedor temporada: ' "+letra+" ' encontrado en col. "+str(columna)
+                    tokn.append(tokentemp) 
+                    tempoval = False
+                    esp_bandera = True
+                    esp_temp = False
+
+                elif tempoval == False:
+                    temp += letra
+                    temp_min += letra.upper()
+                    if temp_min == "TEMPORADA":
+                        tokentemp = "Token palabra reservada: ' "+temp+" ' encontrado en col. "+str(columna)
+                        tokn.append(tokentemp) 
+                        lexema.append(temp)
+                        temp = ""
+                        temp_min = ""           
+
+                elif tempoval == True:                       
+                    tempo += letra
+
+            elif esp_bandera == True:                       
+                if letra == " ":
+                    ""
+                else:
+                    flg += letra
+                    if flg == "-n":
+                        tokentemp = "Token palabra reservada: ' "+flg+" ' encontrado en col. "+str(columna)
+                        tokn.append(tokentemp) 
+                        lexema.append(flg)  
+                        esp_arch = True  
+                        esp_bandera = False
+                        flg = ""     
+            elif esp_arch == True:
+                if letra== " ":
+                    ""
+                elif letra != ".":
+                    arch_rep += letra                   
+                else:   
+                    tokentemp = "Token archivo: ' "+arch_rep+" ' encontrado en col. "+str(columna)
+                    tokn.append(tokentemp) 
+                    lexema.append(arch_rep) 
 
     #resp_txt(lexema)
     print(lexema)
@@ -558,7 +612,6 @@ def sintactico(lexema):
                     resp_txt(respuesta)
                     break
                 if len(lexema) == 6:
-                    print(len(lexema))
                     if lexema[4] == "-f":
                         respuesta = "El Bicho bot:\n Generando archivo de resultados jornada "+lexema[1]+" temporada "+lexema[3]+"\n\n"
                         rep_jornadas(lexema,resultado)
@@ -692,6 +745,7 @@ def sintactico(lexema):
                 respuesta = "Error sintactico: "+ lexema[1]  +" no es reconocido por este lenguaje col. "+str(columna)+"\n\n"
                 resp_txt(respuesta)
                 break
+        
         elif lexema[0] == "PARTIDOS":
             equipo1 = list(filter(lambda item: item['Equipo1'] == lexema[1], partidos)) 
             equipo2 = list(filter(lambda item: item['Equipo2'] == lexema[1], partidos))                
@@ -759,11 +813,129 @@ def sintactico(lexema):
                 resp_txt(respuesta)
                 break
 
+        elif lexema[0] == "TOP":                       
+            if lexema[1] == "SUPERIOR" or lexema[1] == "INFERIOR":            
+                if lexema[2] == "TEMPORADA":
+                    csv_L = list(filter(lambda item: item['Temporada'] == lexema[3], partidos))
+                    if bool(csv_L) == False:
+                        respuesta = "La temporada especificada no exciste.\n\n"
+                        resp_txt(respuesta)
+                        break
+                    equipos = []
+                    tabla = []
+                    for x in range(len(csv_L)):  
+                        if csv_L[x]["Equipo1"] not in equipos:
+                            r1 = {
+                                "e":csv_L[x]["Equipo1"],
+                                "p":0
+                            }
+                            equipos.append(csv_L[x]["Equipo1"])
+                            tabla.append(r1)
+                        if csv_L[x]["Equipo2"] not in equipos:
+                            r2 = {
+                                "e":csv_L[x]["Equipo2"],
+                                "p":0
+                            }
+                            equipos.append(csv_L[x]["Equipo2"])
+                            tabla.append(r2) 
+
+                    for z in range(len(csv_L)):        
+                    
+                        if int(csv_L[z]["Goles1"]) > int(csv_L[z]["Goles2"]):
+                            "Local"     
+
+                            equipoencontrado1 = [equip for equip in tabla if equip['e'] == csv_L[z]["Equipo1"]]
+                            if (len(equipoencontrado1)) > 0:
+                                equipoencontrado1[0]['p'] = int(equipoencontrado1[0]['p'])+3
+
+                            equipoencontrado2 = [equip2 for equip2 in tabla if equip2['e'] == csv_L[z]["Equipo2"]]
+                            if (len(equipoencontrado2)) > 0:
+                                equipoencontrado2[0]['p'] = int(equipoencontrado2[0]['p'])+0          
+
+                        elif int(csv_L[z]["Goles1"]) < int(csv_L[z]["Goles2"]):
+                            "Visitante"
+
+                            equipoencontrado1 = [equip for equip in tabla if equip['e'] == csv_L[z]["Equipo1"]]
+                            if (len(equipoencontrado1)) > 0:
+                                equipoencontrado1[0]['p'] = int(equipoencontrado1[0]['p'])+0
+
+                            equipoencontrado2 = [equip2 for equip2 in tabla if equip2['e'] == csv_L[z]["Equipo2"]]
+                            if (len(equipoencontrado2)) > 0:
+                                equipoencontrado2[0]['p'] = int(equipoencontrado2[0]['p'])+3  
+
+                        elif int(csv_L[z]["Goles1"]) == int(csv_L[z]["Goles2"]):
+                            "Empate"    
+
+                            equipoencontrado1 = [equip for equip in tabla if equip['e'] == csv_L[z]["Equipo1"]]
+                            if (len(equipoencontrado1)) > 0:
+                                equipoencontrado1[0]['p'] = int(equipoencontrado1[0]['p'])+1
+
+                            equipoencontrado2 = [equip2 for equip2 in tabla if equip2['e'] == csv_L[z]["Equipo2"]]
+                            if (len(equipoencontrado2)) > 0:
+                                equipoencontrado2[0]['p'] = int(equipoencontrado2[0]['p'])+1
 
 
+                    if len(lexema) == 6:
+                        if lexema[4] == "-n":
+                            if lexema[1] == "SUPERIOR":
+                                respuesta = "El Bicho bot:\n El top SUPERIOR de la temporada "+lexema[3]+" fue:\n"
+                                resp_txt(respuesta)
+                                bubble_sort(tabla)
+                                for z in range(len(tabla)): 
+                                    if z <= int(lexema[5])-1:
+                                        eq = tabla[z]['e']
+                                        pt = tabla[z]['p'] 
+                                        respuesta = str(z+1)+". "+eq+ " con "+ str(pt) + " puntos\n"
+                                        resp_txt(respuesta)
+                                break  
+                            elif lexema[1] == "INFERIOR":
+                                respuesta = "El Bicho bot:\n El top INFERIOR de la temporada "+lexema[3]+" fue:\n"
+                                resp_txt(respuesta)
+                                bubble_sort3(tabla)
+                                for z in range(len(tabla)): 
+                                    if z <= int(lexema[5])-1:
+                                        eq = tabla[z]['e']
+                                        pt = tabla[z]['p'] 
+                                        respuesta = str(z+1)+". "+eq+ " con "+ str(pt) + " puntos\n"
+                                        resp_txt(respuesta)
+                                break 
+                    else:
+                        if lexema[1] == "SUPERIOR":
+                            respuesta = "El Bicho bot:\n El top 5 SUPERIOR de la temporada "+lexema[3]+" fue:\n"
+                            resp_txt(respuesta)
+                            bubble_sort(tabla)
+                            for z in range(len(tabla)): 
+                                if z <= 5:
+                                    eq = tabla[z]['e']
+                                    pt = tabla[z]['p'] 
+                                    respuesta = str(z+1)+". "+eq+ " con "+ str(pt) + " puntos\n"
+                                    resp_txt(respuesta)
+                            break  
+                        elif lexema[1] == "INFERIOR":
+                            respuesta = "El Bicho bot:\n El top 5 INFERIOR de la temporada "+lexema[3]+" fue:\n"
+                            resp_txt(respuesta)
+                            bubble_sort3(tabla)
+                            for z in range(len(tabla)): 
+                                if z <= 5:
+                                    eq = tabla[z]['e']
+                                    pt = tabla[z]['p'] 
+                                    respuesta = str(z+1)+". "+eq+ " con "+ str(pt) + " puntos\n"
+                                    resp_txt(respuesta)
+                            break  
+                                 
+                else:
+                    errortemp = "Error sintactico: "+ lexema[2]  +" no es reconocido por este lenguaje col. "+str(columna)
+                    error.append(errortemp)
+                    respuesta = "Error sintactico: "+ lexema[2]  +" no es reconocido por este lenguaje col. "+str(columna)+"\n\n"
+                    resp_txt(respuesta)
+                    break
+            else:
+                errortemp = "Error sintactico: "+ lexema[1]  +" no es reconocido por este lenguaje col. "+str(columna)
+                error.append(errortemp)
+                respuesta = "Error sintactico: "+ lexema[1]  +" no es reconocido por este lenguaje col. "+str(columna)+"\n\n"
+                resp_txt(respuesta)
+                break
 
-        elif lexema[0] == "TOP":
-            ""
         elif lexema[0] == "ADIOS":
             resp = "Hasta pronto, que todo vaya bien.\n\n"
             resp_txt(resp)
@@ -785,11 +957,7 @@ def log_errores():
     error.clear() 
 
 def log_token():
-    tokn.clear()       
-    
-    
-    
-
+    tokn.clear()     
    
 def rep_jornadas(valores,csv_L):   
     try:
@@ -907,6 +1075,14 @@ def bubble_sort(lista):
                 lista[j] = lista[j+1]
                 lista[j+1] = temp
 
+def bubble_sort3(lista):
+    for i in range(len(lista)):
+        for j in range(len(lista)-1):
+            if lista[j]['p'] > lista[j+1]['p']:
+                temp = lista[j]
+                lista[j] = lista[j+1]
+                lista[j+1] = temp
+
 def rep_temporadas(valores,csv_L):
     try:
         if tokn is not empty:
@@ -950,7 +1126,6 @@ def rep_temporadas(valores,csv_L):
             '''.format(valores[2])
             equipos = []
             tabla = []
-            puntos = []
             html_mid = ''
             for x in range(len(csv_L)):  
                 if csv_L[x]["Equipo1"] not in equipos:
@@ -1079,68 +1254,6 @@ def bubble_sort2(lista):
                 temp = lista[j]
                 lista[j] = lista[j+1]
                 lista[j+1] = temp
-
-def pb(valores,csv_L):
-    tabla = []
-    tabla1= []
-    html_mid = ''
-    if len(valores) == 6:        
-        for x in range(len(csv_L)):  
-            r1 = {
-                "j":int(csv_L[x]["Jornada"]),
-                "e1":csv_L[x]["Equipo1"],
-                "g1":csv_L[x]["Goles1"],
-                "e2":csv_L[x]["Equipo2"],
-                "g2":csv_L[x]["Goles1"],
-            }
-            tabla.append(r1)
-        bubble_sort2(tabla)
-        for z in range(len(tabla)): 
-            j = tabla[z]['j']
-            eq1 = tabla[z]['e1']
-            g1 = tabla[z]['g1']
-            eq2 = tabla[z]['e2']
-            g2 = tabla[z]['g2']   
-        
-    if len(valores) == 8:
-
-        for x in range(len(csv_L)):  
-            r1 = {
-                "j":int(csv_L[x]["Jornada"]),
-                "e1":csv_L[x]["Equipo1"],
-                "g1":csv_L[x]["Goles1"],
-                "e2":csv_L[x]["Equipo2"],
-                "g2":csv_L[x]["Goles1"]
-            }
-            tabla.append(r1)
-        bubble_sort2(tabla)
-
-        for y in range(len(tabla)): 
-            if int(valores[5]) <= tabla[y]['j'] and int(valores[7]) >= tabla[y]['j']:
-                r2 = {
-                    "j":int(tabla[y]['j']),
-                    "e1":tabla[y]['e1'],
-                    "g1":tabla[y]['g1'],
-                    "e2":tabla[y]['e2'],
-                    "g2":tabla[y]['g2']
-                }
-                tabla1.append(r2)
-
-
-
-        for z in range(len(tabla1)): 
-            j = tabla[z]['j']
-            eq1 = tabla[z]['e1']
-            g1 = tabla[z]['g1']
-            eq2 = tabla[z]['e2']
-            g2 = tabla[z]['g2']  
-        
-            print(tabla1[z])
-    elif len(valores) == 10:
-        ""
-
-    
-   
 
 
 
