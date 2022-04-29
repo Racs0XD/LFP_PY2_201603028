@@ -1516,7 +1516,7 @@ def rep_token():
     try:
         if tokn is not empty:
 
-            f = open('Reporte_token.html', 'w')  
+            f = open('Reporte_token.html', 'w', encoding='utf-8')   
 
             html_cabeza = """
             <head>
@@ -1618,7 +1618,7 @@ def rep_error():
     try:
         if len(error) != 0:
 
-            f = open('Reporte_error.html', 'w')  
+            f = open('Reporte_error.html', 'w', encoding='utf-8')    
 
             html_cabeza = """
             <head>
@@ -1716,6 +1716,166 @@ def rep_error():
     except Exception as e:
         messagebox.showerror(message="Error, no se a cargado o analizado ningúna información", title="Alerta")
 
+def manual_tecnico():
+    f = open('Tecnico.html', 'w')
+
+    html_cabeza = """
+            <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Manual Tecnico</title>
+        </head>
+
+        <body>
+
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+            integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+
+
+
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+            <a class="navbar-brand"> &nbsp;&nbsp;&nbsp;Reporte</a>
+        </nav>
+
+        """
+
+    html_pie="""
+
+
+            <br><br><br><br><br><br>
+            <footer>
+            </footer>
+
+            <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+            integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+            crossorigin="anonymous"></script>
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+            integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+            crossorigin="anonymous"></script>
+            <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+            integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+            crossorigin="anonymous"></script>
+        </body>
+        <style>
+            table {
+            border: #b2b2b2 1px solid;
+            border-collapse: separate;
+
+            }
+            th {
+            border: black 1px solid;
+            padding-top: 12px;
+            padding-bottom: 12px;
+            text-align: left;
+            background-color: #357baa;
+            color: white;
+            }
+            td, th {
+            border: 1px solid #ddd;
+            padding: 8px;
+            }
+
+            tr:nth-child(even){background-color: #c0c0c0;}
+
+            tr:hover {background-color: #ddd;}
+
+
+            </style>
+
+        </body>
+            """
+
+    html_tecnico = """
+    <iframe src="Manual_Tecnico.pdf" height="100%" width="100%"></iframe>
+
+    """
+    html = html_cabeza  + html_tecnico +  html_pie    
+
+    f.write(html)     
+    f.close()     
+    file = webbrowser.open('Tecnico.html') 
+
+def manual_usuario():
+    f = open('Usuario.html', 'w')
+
+    html_cabeza = """
+            <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Manual de Usuario</title>
+        </head>
+
+        <body>
+
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+            integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+
+
+
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+            <a class="navbar-brand"> &nbsp;&nbsp;&nbsp;Reporte</a>
+        </nav>
+
+        """
+
+    html_pie="""
+
+
+            <br><br><br><br><br><br>
+            <footer>
+            </footer>
+
+            <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+            integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+            crossorigin="anonymous"></script>
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+            integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+            crossorigin="anonymous"></script>
+            <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+            integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+            crossorigin="anonymous"></script>
+        </body>
+        <style>
+            table {
+            border: #b2b2b2 1px solid;
+            border-collapse: separate;
+
+            }
+            th {
+            border: black 1px solid;
+            padding-top: 12px;
+            padding-bottom: 12px;
+            text-align: left;
+            background-color: #357baa;
+            color: white;
+            }
+            td, th {
+            border: 1px solid #ddd;
+            padding: 8px;
+            }
+
+            tr:nth-child(even){background-color: #c0c0c0;}
+
+            tr:hover {background-color: #ddd;}
+
+
+            </style>
+
+        </body>
+            """
+
+    html_tecnico = """
+    <iframe src="Manual_Usuario.pdf" height="100%" width="100%"></iframe>
+
+    """
+    html = html_cabeza  + html_tecnico +  html_pie    
+
+    f.write(html)     
+    f.close()     
+    file = webbrowser.open('Usuario.html') 
+
 # -----------------------------------------------------------------------------------------------------------------------
 # -----------------------------------------------------------------------------------------------------------------------
 # ------------------------------------------------- Interfaz Gráfica ----------------------------------------------------
@@ -1798,14 +1958,14 @@ boton4.config(bd=10)
 boton4.config(relief="ridge")
 
 boton5 = tkinter.Button(ventana, text="Manual de usuario", fg="black", font=(
-    "broadway 12 bold"), command=hola, borderwidth=0, bg="lightgrey")
+    "broadway 12 bold"), command=manual_usuario, borderwidth=0, bg="lightgrey")
 boton5.place(x=790, y=250)
 boton5.config(width=20, height=1)
 boton5.config(bd=10)
 boton5.config(relief="ridge")
 
 boton6 = tkinter.Button(ventana, text="Manual de tecnico", fg="black", font=(
-    "broadway 12 bold"), command=hola, borderwidth=0, bg="lightgrey")
+    "broadway 12 bold"), command=manual_tecnico, borderwidth=0, bg="lightgrey")
 boton6.place(x=790, y=310)
 boton6.config(width=20, height=1)
 boton6.config(bd=10)
