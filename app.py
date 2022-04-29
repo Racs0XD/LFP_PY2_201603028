@@ -70,79 +70,84 @@ def get_value():
         elif letra == "\t" :
             ""
         elif chatval == True:
-            temp += letra 
-            temp_min += letra.upper()
-            if temp_min == "RESULTADO":
-                resultadoval = True
-                tokentemp = "Token palabra reservada: ' "+temp+" ' encontrado en col. "+str(columna)
-                tokn.append(tokentemp)
-                lexema.append(temp)
-                chatval = False 
-                temp = ""
-                temp_min = ""
-            elif temp_min == "JORNADA":
-                jornadaval = True
-                tokentemp = "Token palabra reservada: ' "+temp+" ' encontrado en col. "+str(columna)
-                tokn.append(tokentemp) 
-                lexema.append(temp)
-                chatval = False 
-                temp = ""
-                temp_min = ""
-            elif temp_min == "GOLES":
-                golesval = True
-                tokentemp = "Token palabra reservada: ' "+temp+" ' encontrado en col. "+str(columna)
-                tokn.append(tokentemp) 
-                lexema.append(temp)
-                chatval = False 
-                temp = ""
-                temp_min = ""
-            elif temp_min == "TABLA":
-                tablaval = True
-                tokentemp = "Token palabra reservada: ' "+temp+" ' encontrado en col. "+str(columna)
-                tokn.append(tokentemp) 
-                lexema.append(temp)
-                chatval = False 
-                temp = ""
-                temp_min = ""
-            elif temp_min == "PARTIDOS":
-                partidosval = True
-                tokentemp = "Token palabra reservada: ' "+temp+" ' encontrado en col. "+str(columna)
-                tokn.append(tokentemp) 
-                lexema.append(temp)
-                chatval = False 
-                temp = ""
-                temp_min = ""
-            elif temp_min == "TOP":
-                topval = True
-                tokentemp = "Token palabra reservada: ' "+temp+" ' encontrado en col. "+str(columna)
-                tokn.append(tokentemp) 
-                lexema.append(temp)
-                chatval = False 
-                temp = ""
-                temp_min = ""
-            elif temp_min == "ADIOS":
-                tokentemp = "Token palabra reservada: ' "+temp+" ' encontrado en col. "+str(columna)
-                tokn.append(tokentemp) 
-                lexema.append(temp)
-                chatval = False 
-                temp = ""
-                temp_min = ""
-            else:
-                if letra == "“":
+            if letra != " ":                
+                temp += letra 
+                temp_min += letra.upper()
+                if temp_min == "RESULTADO":
+                    resultadoval = True
+                    tokentemp = "Token palabra reservada: ' "+temp+" ' encontrado en col. "+str(columna)
+                    tokn.append(tokentemp)
+                    lexema.append(temp)
+                    chatval = False 
+                    temp = ""
+                    temp_min = ""
+                elif temp_min == "JORNADA":
+                    jornadaval = True
+                    tokentemp = "Token palabra reservada: ' "+temp+" ' encontrado en col. "+str(columna)
+                    tokn.append(tokentemp) 
+                    lexema.append(temp)
+                    chatval = False 
+                    temp = ""
+                    temp_min = ""
+                elif temp_min == "GOLES":
+                    golesval = True
+                    tokentemp = "Token palabra reservada: ' "+temp+" ' encontrado en col. "+str(columna)
+                    tokn.append(tokentemp) 
+                    lexema.append(temp)
+                    chatval = False 
+                    temp = ""
+                    temp_min = ""
+                elif temp_min == "TABLA":
+                    tablaval = True
+                    tokentemp = "Token palabra reservada: ' "+temp+" ' encontrado en col. "+str(columna)
+                    tokn.append(tokentemp) 
+                    lexema.append(temp)
+                    chatval = False 
+                    temp = ""
+                    temp_min = ""
+                elif temp_min == "PARTIDOS":
+                    partidosval = True
+                    tokentemp = "Token palabra reservada: ' "+temp+" ' encontrado en col. "+str(columna)
+                    tokn.append(tokentemp) 
+                    lexema.append(temp)
+                    chatval = False 
+                    temp = ""
+                    temp_min = ""
+                elif temp_min == "TOP":
+                    topval = True
+                    tokentemp = "Token palabra reservada: ' "+temp+" ' encontrado en col. "+str(columna)
+                    tokn.append(tokentemp) 
+                    lexema.append(temp)
+                    chatval = False 
+                    temp = ""
+                    temp_min = ""
+                elif temp_min == "ADIOS":
+                    tokentemp = "Token palabra reservada: ' "+temp+" ' encontrado en col. "+str(columna)
+                    tokn.append(tokentemp) 
+                    lexema.append(temp)
+                    chatval = False 
+                    temp = ""
+                    temp_min = ""
+            else:   
+                if letra == " ":
                     errortemp = "Error lexico: ' "+ temp +" ' se esperaria palabra reservada col. "+str(columna)
                     error.append(errortemp) 
+                    resp_txt(errortemp+"\n\n")
                     temp = "" 
                     chatval = False    
-                    break   
-                elif letra == " ":   
-                    tokentemp = "Token separacion encontrado en col. "+str(columna)
-                    tokn.append(tokentemp) 
-                    temp = ""               
-                    chatval = False 
+                    break  
+                elif letra == "“":
+                    errortemp = "Error lexico: ' "+ temp +" ' se esperaria palabra reservada col. "+str(columna)
+                    error.append(errortemp) 
+                    resp_txt(errortemp+"\n\n")
+                    temp = "" 
+                    chatval = False    
+                    break  
         elif resultadoval == True:      
             if letra == " ":
                 if comillaval == False:
                     ""
+                    
                 else:
                     equipo += letra 
             elif letra == "“": 
@@ -154,7 +159,8 @@ def get_value():
                                 
                 if not equipo:
                     errortemp = "Error lexico cadena vacia, se esperaria informacion,  col. "+str(columna)
-                    error.append(errortemp)  
+                    error.append(errortemp)
+                    resp_txt(errortemp+"\n\n") 
                 else:
                     tokentemp = "Token cadena: ' "+equipo+" ' encontrado en col. "+str(columna)
                     tokn.append(tokentemp) 
@@ -281,6 +287,7 @@ def get_value():
                 if not equipo:
                     errortemp = "Error lexico cadena vacia, se esperaria informacion,  col. "+str(columna)
                     error.append(errortemp)  
+                    resp_txt(errortemp+"\n\n")
                 else:
                     tokentemp = "Token cadena: ' "+equipo+" ' encontrado en col. "+str(columna)
                     tokn.append(tokentemp) 
@@ -391,6 +398,7 @@ def get_value():
                 if not equipo:
                     errortemp = "Error lexico cadena vacia, se esperaria informacion,  col. "+str(columna)
                     error.append(errortemp)  
+                    resp_txt(errortemp+"\n\n")
                 else:
                     tokentemp = "Token cadena: ' "+equipo+" ' encontrado en col. "+str(columna)
                     tokn.append(tokentemp) 
@@ -799,15 +807,9 @@ def sintactico(lexema):
                         respuesta = "El Bicho bot:\n Generando archivo de resultados de temporada "+lexema[3]+" del "+lexema[1]+" \ncon las jornadas "+lexema[5]+""+lexema[7]+" con nombre "+lexema[9]+"\n\n"
                         rep_partidos(lexema,resultado)
                         resp_txt(respuesta)
-                        break
-                
-                else:
-                    respuesta = "El Bicho bot:\n Generando archivo de resultados de temporada "+lexema[3]+" del "+lexema[1]+"\n\n"
-                    pb(lexema,resultado)
-                    resp_txt(respuesta)
-                    break        
+                        break    
             else:
-                errortemp = "Error sintactico: "+ lexema[1]  +" no es reconocido por este lenguaje col. "+str(columna)
+                errortemp = "Error sintactico: "+ lexema[1]  +" no es reconocido por este lenguaje col. "+str(columSSna)
                 error.append(errortemp)
                 respuesta = "Error sintactico: "+ lexema[1]  +" no es reconocido por este lenguaje col. "+str(columna)+"\n\n"
                 resp_txt(respuesta)
@@ -1921,9 +1923,6 @@ frameIm.config(relief="ridge")
 # -----------------------------------------------------------------------------------------------------------------------
 # -----------------------------------------------------------------------------------------------------------------------
 
-
-def hola():
-    print("Hola Mundo")
 
 
 
